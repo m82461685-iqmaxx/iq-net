@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IQ MAXX (by dk) - Wi-Fi Audit Report</title>
+    <style>
+        :root {
+            --bg-primary: #0a0e17;
+            --bg-secondary: #111927;
+            --bg-card: #152238;
+            --border-color: #1e3352;
+            --neon-blue: #00d2ff;
+            --electric-blue: #3a7bd5;
+            --neon-green: #00ff88;
+            --mint-green: #10b981;
+            --amber-warn: #f59e0b;
+            --danger-red: #ef4444;
+            --text-main: #f3f4f6;
+            --text-dim: #9ca3af;
+        }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-main);
+            min-height: 100vh;
+            padding: 2rem 1rem;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        header {
+            background: linear-gradient(135deg, rgba(16, 25, 44, 0.9) 0%, rgba(10, 14, 23, 0.95) 100%);
+            border: 1px solid var(--border-color);
+            border-top: 4px solid var(--neon-blue);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 210, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        header::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 300px;
+            height: 100%;
+            background: radial-gradient(circle, rgba(0, 255, 136, 0.15) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        .brand-title {
+            font-size: 2.2rem;
+            font-weight: 800;
+            letter-spacing: 1px;
+            background: linear-gradient(90deg, var(--neon-blue), var(--neon-green));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: inline-block;
+        }
+        .brand-subtitle {
+            color: var(--neon-green);
+            font-size: 1rem;
+            font-style: italic;
+            margin-left: 0.5rem;
+            font-weight: 400;
+        }
+        .tagline {
+            color: var(--text-dim);
+            margin-top: 0.5rem;
+            font-size: 0.95rem;
+        }
+        .meta-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-color);
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        .timestamp {
+            color: var(--text-dim);
+            font-size: 0.85rem;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.25rem;
+            margin-bottom: 2rem;
+        }
+        .stat-card {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 1.25rem;
+            position: relative;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+        .stat-card:hover {
+            transform: translateY(-3px);
+            border-color: var(--neon-blue);
+        }
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--neon-blue);
+        }
+        .stat-label {
+            color: var(--text-dim);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 0.25rem;
+        }
+        .table-container {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+        }
+        .table-header-bar {
+            padding: 1.25rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        .search-input {
+            background-color: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 0.6rem 1rem;
+            color: var(--text-main);
+            outline: none;
+            width: 280px;
+            transition: border-color 0.2s;
+        }
+        .search-input:focus {
+            border-color: var(--neon-blue);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+        th {
+            background-color: var(--bg-card);
+            color: var(--neon-blue);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 1rem;
+            font-weight: 600;
+        }
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.95rem;
+        }
+        tr:hover td {
+            background-color: rgba(0, 210, 255, 0.03);
+        }
+        .idx-col {
+            color: var(--text-dim);
+            font-weight: 600;
+            width: 50px;
+        }
+        .ssid-col {
+            color: #ffffff;
+        }
+        .pwd-container {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-family: 'Consolas', monospace;
+            background-color: var(--bg-primary);
+            padding: 0.35rem 0.6rem;
+            border-radius: 6px;
+            border: 1px solid rgba(255,255,255,0.05);
+            width: fit-content;
+        }
+        .pwd-text {
+            color: var(--neon-green);
+        }
+        .copy-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 0.9rem;
+            opacity: 0.6;
+            transition: opacity 0.2s;
+        }
+        .copy-btn:hover {
+            opacity: 1.0;
+        }
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.6rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+        .badge-secure {
+            background-color: rgba(16, 185, 129, 0.15);
+            color: var(--neon-green);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+        .badge-open {
+            background-color: rgba(239, 68, 68, 0.15);
+            color: var(--danger-red);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+        .pill {
+            display: inline-block;
+            padding: 0.2rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .pill-success { background: rgba(0, 255, 136, 0.15); color: var(--neon-green); }
+        .pill-warning { background: rgba(245, 158, 11, 0.15); color: var(--amber-warn); }
+        .pill-danger  { background: rgba(239, 68, 68, 0.15); color: var(--danger-red); }
+        .pill-info    { background: rgba(0, 210, 255, 0.15); color: var(--neon-blue); }
+        .cipher-tag {
+            color: var(--neon-blue);
+            font-size: 0.85rem;
+        }
+        .platform-tag {
+            background-color: var(--bg-card);
+            color: var(--text-dim);
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+        }
+        footer {
+            text-align: center;
+            margin-top: 3rem;
+            color: var(--text-dim);
+            font-size: 0.85rem;
+        }
+        footer a {
+            color: var(--neon-blue);
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div>
+                <h1 class="brand-title">IQ MAXX</h1>
+                <span class="brand-subtitle">(by dk)</span>
+            </div>
+            <p class="tagline">Wireless Security Audit & Saved Credentials Intelligence Dashboard</p>
+            <div class="meta-bar">
+                <span class="timestamp">Generated: <strong>2026-08-30 03:58:47</strong></span>
+                <span class="timestamp">Target Platform: <strong>Cross-Platform</strong></span>
+            </div>
+        </header>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value">14</div>
+                <div class="stat-label">Total Networks Audited</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" style="color: var(--neon-green);">13</div>
+                <div class="stat-label">Secured Networks (WPA2/WPA3)</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" style="color: var(--danger-red);">1</div>
+                <div class="stat-label">Open / Unsecured Networks</div>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <div class="table-header-bar">
+                <h3>Extracted Credentials (14)</h3>
+                <input type="text" id="searchInput" class="search-input" placeholder="Search SSID, Auth, Platform..." onkeyup="filterTable()">
+            </div>
+            <table id="credTable">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>SSID Name</th>
+                        <th>Extracted Passphrase</th>
+                        <th>Status</th>
+                        <th>Security Rating</th>
+                        <th>Authentication / Cipher</th>
+                        <th>Source Platform</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    
+                <tr class="table-row">
+                    <td class="idx-col">1</td>
+                    <td class="ssid-col"><strong>Infinix NOTE 40 Pro 5G</strong></td>
+                    <td class="pwd-col">
+                        <div class="pwd-container">
+                            <span class="pwd-text" id="pwd-1">098754321</span>
+                            <button class="copy-btn" onclick="copyText('pwd-1', this)" title="Copy Password">📋</button>
+                        </div>
+                    </td>
+                    <td><span class="badge badge-secure">PROTECTED</span></td>
+                    <td><span class="pill pill-warning">MODERATE</span></td>
+                    <td><span class="cipher-tag">WPA2-Personal</span> <small class="text-dim">(CCMP)</small></td>
+                    <td><span class="platform-tag">Windows (Netsh/WLAN)</span></td>
+                </tr>
+                
+                <tr class="table-row">
+                    <td class="idx-col">2</td>
+                    <td class="ssid-col"><strong>iQOO Z10x 5G</strong></td>
+                    <td class="pwd-col">
+                        <div class="pwd-container">
+                            <span class="pwd-text" id="pwd-2">123456dk</span>
+                            <button class="copy-btn" onclick="copyText('pwd-2', this)" title="Copy Password">📋</button>
+                        </div>
+                    </td>
+                    <td><span class="badge badge-secure">PROTECTED</span></td>
+                    <td><span class="pill pill-warning">MODERATE</span></td>
+                    <td><span class="cipher-tag">WPA2-Personal</span> <small class="text-dim">(CCMP)</small></td>
+                    <td><span class="platform-tag">Windows (Netsh/WLAN)</span></td>
+                </tr>
+                
+                <tr class="table-row">
+                    <td class="idx-col">3</td>
+                    <td class="ssid-col"><strong>OPPO A5 Pro 5G 3CE8</strong></td>
+                    <td class="pwd-col">
+                        <div class="pwd-container">
+                            <span class="pwd-text" id="pwd-3">Joshva2008</span>
+                            <button class="copy-btn" onclick="copyText('pwd-3', this)" title="Copy Password">📋</button>
+                        </div>
+                    </td>
+                    <td><span class="badge badge-secure">PROTECTED</span></td>
+                    <td><span class="pill pill-warning">MODERATE</span></td>
+                    <td><span class="cipher-tag">WPA2-Personal</span> <small class="text-dim">(CCMP)</small></td>
+                    <td><span class="platform-tag">Windows (Netsh/WLAN)</span></td>
+                </tr>
+                
+                <tr class="table-row">
+                    <td class="idx-col">4</td>
+                    <td class="ssid-col"><strong>simba</strong></td>
+                    <td class="pwd-col">
+                        <div class="pwd-container">
+                            <span class="pwd-text" id="pwd-4">0987654321</span>
+                            <button class="copy-btn" onclick="copyText('pwd-4', this)" title="Copy Password">📋</button>
+                        </div>
+                    </td>
+                    <td><span class="badge badge-secure">PROTECTED</span></td>
+                    <td><span class="pill pill-warning">MODERATE</span></td>
+                    <td><span class="cipher-tag">WPA2-Personal</span> <small class="text-dim">(CCMP)</small></td>
+                    <td><span class="platform-tag">Windows (Netsh/WLAN)</span></td>
+                </tr>
+                
+                <tr class="table-row">
+                    <td class="idx-col">5</td>
+                    <td class="ssid-col"><strong>CMS</strong></td>
+                    <td class="pwd-col">
+                        <div class="pwd-container">
+                            <span class="pwd-text" id="pwd-5">[Open Network]</span>
+                            <button class="copy-btn" onclick="copyText('pwd-5', this)" title="Copy Password">📋</button>
+                        </div>
+                    </td>
+                    <td><span class="badge badge-open">OPEN / NO PWD</span></td>
+                    <td><span class="pill pill-danger">UNSECURED</span></td>
+                    <td><span class="cipher-tag">Open</span> <small class="text-dim">(None)</small></td>
+                    <td><span class="platform-tag">Windows (Netsh/WLAN)</span></td>
+                </tr>
+                
+                <tr class="table-row">
+                    <td class="idx-col">6</td>
+                    <td class="ssid-col"><strong>vivo Y28s 5G</strong></td>
+                    <td class="pwd-col">
+                        <div class="pwd-container">
+                            <span class="pwd-text" id="pwd-6">309200620</span>
+                            <button class="copy-btn" onclick="copyText('pwd-6', this)" title="Copy Password">📋</button>
+                        </div>
+                    </td>
+                    <td><span class="badge badge-secure">PROTECTED</span></td>
+                    <td><span class="pill pill-warning">MODERATE</span></td>
+                    <td><span class="cipher-tag">WPA2-Personal</span> <small class="text-dim">(CCMP)</small></td>
+                    <td><span class="platform-tag">Windows (Netsh/WLAN)</span></td>
+                </tr>
+                
+                <tr class="table-row">
+                    <td class="idx-col">7</td>
+                    <td class="ssid-col"><strong>Vivo T4X 5G</strong></td>
+                    <td class="pwd-col">
+                        <div class="pwd-container">
+                            <span class="pwd-text" id="pwd-7">sham@2006</span>
+                            <button class="copy-btn" onclick="copyText('pwd-7', this)" title="Copy Password">📋</button>
+                        </div>
+                    </td>
+                    <td><span class="badge badge-secure">PROTECTED</span></td>
+                    <td><span class="pill pill-warning">MODERATE</span></td>
+                    <td><span class="cipher-tag">WPA2-Personal</span> <small class="text-dim">(CCMP)</small></td>
+                    <td><span class="platform-tag">Windows (Netsh/WLAN)</span></td>
+                </tr>
+                
+                <tr class="table-row">
+                    <td class="idx-col">8</td>
+                    <td class="ssid-col"><strong>vivo T3 5G</strong></td>
+                    <td class="pwd-col">
+                        <div class="pwd-container">
+                            <span class="pwd-text" id="pwd-8">0987654321</span>
+                            <button class="copy-btn" onclick="copyText('pwd-8', this)" title="Copy Password">📋</button>
+                        </div>
+                    </td>
+                    <td><span class="badge badge-secure">PROTECTED</span></td>
+                    <td><span class="pill pill-warning">MODERATE</span></td>
+                    <td><span class="cipher-tag">WPA2-Personal</span> <small class="text-dim">(CCMP)</small></td>
+                    <td><span class="platform-tag">Windows (Netsh/WLAN)</span></td>
+                </tr>
+                
+                <tr class="table-row">
+                    <td class="idx-col">9</td>
+                    <td class="ssid-col"><strong>realme C75 5G</strong></td>
+                    <td class="pwd-col">
+                        <div class="pwd-container">
+                            <span class="pwd-text" id="pwd-9">9751655091</span>
+                            <button class="copy-btn" onclick="copyText('pwd-9', this)" title="Copy Password">📋</button>
+                        </div>
+                    </td>
+                    <td><span class="badge badge-secure">PROTECTED</span></td>
+                    <td><span class="pill pill-warning">MODERATE</span></td>
+                    <td><span class="cipher-tag">WPA2-Personal</span> <small class="text-dim">(CCMP)</small></td>
+                    <td><span class="platform-tag">Windows (Netsh/WLAN)</span></td>
+                </tr>
+                
+                <tr class="table-row">
+                    <td class="idx-col">10</td>
+                    <td class="ssid-col"><strong>Ð²Ñ”Ð¸ Ñ‚Ñ”Ð¸</strong></td>
+                    <td class="pwd-col">
+                        <div class="pwd-container">
+                            <span class="pwd-text" id="pwd-10">[Password Not Stored / 802.1X]</span>
+                            <button class="copy-btn" onclick="copyText('pwd-10', this)" title="Copy Password">📋</button>
+                        </div>
+                    </td>
+                    <td><span class="badge badge-secure">PROTECTED</span></td>
+                    <td><span class="pill pill-info">SYSTEM PROTECTED</span></td>
+                    <td><span class="cipher-tag">WPA2-Personal</span> <small class="text-dim">(CCMP/AES)</small></td>
+                    <td><span class="platform-tag">Windows (Netsh/WLAN)</span></td>
+                </tr>
+                
+                <tr class="table-row">
+                    <td class="idx-col">11</td>
+                    <td class="ssid-col"><strong>Redmi Note 8</strong></td>
+                    <td class="pwd-col">
+                        <div class="pwd-container">
+                            <span class="pwd-text" id="pwd-11">12345678</span>
+                            <button class="copy-btn" onclick="copyText('pwd-11', this)" title="Copy Password">📋</button>
+                        </div>
+                    </td>
+                    <td><span class="badge badge-secure">PROTECTED</span></td>
+                    <td><span class="pill pill-warning">MODERATE</span></td>
+                    <td><span class="cipher-tag">WPA2-Personal</span> <small class="text-dim">(CCMP)</small></td>
+                    <td><span class="platform-tag">Windows (Netsh/WLAN)</span></td>
+                </tr>
+                
+                <tr class="table-row">
+                    <td class="idx-col">12</td>
+                    <td class="ssid-col"><strong>POCO X5 5G</strong></td>
+                    <td class="pwd-col">
+                        <div class="pwd-container">
+                            <span class="pwd-text" id="pwd-12">00000000</span>
+                            <button class="copy-btn" onclick="copyText('pwd-12', this)" title="Copy Password">📋</button>
+                        </div>
+                    </td>
+                    <td><span class="badge badge-secure">PROTECTED</span></td>
+                    <td><span class="pill pill-warning">MODERATE</span></td>
+                    <td><span class="cipher-tag">WPA2-Personal</span> <small class="text-dim">(CCMP)</small></td>
+                    <td><span class="platform-tag">Windows (Netsh/WLAN)</span></td>
+                </tr>
+                
+                <tr class="table-row">
+                    <td class="idx-col">13</td>
+                    <td class="ssid-col"><strong>GOKULNATH</strong></td>
+                    <td class="pwd-col">
+                        <div class="pwd-container">
+                            <span class="pwd-text" id="pwd-13">silent@0514</span>
+                            <button class="copy-btn" onclick="copyText('pwd-13', this)" title="Copy Password">📋</button>
+                        </div>
+                    </td>
+                    <td><span class="badge badge-secure">PROTECTED</span></td>
+                    <td><span class="pill pill-warning">MODERATE</span></td>
+                    <td><span class="cipher-tag">WPA2-Personal</span> <small class="text-dim">(CCMP)</small></td>
+                    <td><span class="platform-tag">Windows (Netsh/WLAN)</span></td>
+                </tr>
+                
+                <tr class="table-row">
+                    <td class="idx-col">14</td>
+                    <td class="ssid-col"><strong>WHITE HOUSE</strong></td>
+                    <td class="pwd-col">
+                        <div class="pwd-container">
+                            <span class="pwd-text" id="pwd-14">WHITE12345</span>
+                            <button class="copy-btn" onclick="copyText('pwd-14', this)" title="Copy Password">📋</button>
+                        </div>
+                    </td>
+                    <td><span class="badge badge-secure">PROTECTED</span></td>
+                    <td><span class="pill pill-warning">MODERATE</span></td>
+                    <td><span class="cipher-tag">WPA2-Personal</span> <small class="text-dim">(CCMP)</small></td>
+                    <td><span class="platform-tag">Windows (Netsh/WLAN)</span></td>
+                </tr>
+                
+                </tbody>
+            </table>
+        </div>
+
+        <footer>
+            <p>Generated by <strong>IQ MAXX (by dk)</strong> • For security auditing & authorized credential recovery.</p>
+        </footer>
+    </div>
+
+    <script>
+        function filterTable() {
+            const input = document.getElementById('searchInput').value.toLowerCase();
+            const rows = document.querySelectorAll('#credTable tbody tr');
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(input) ? '' : 'none';
+            });
+        }
+
+        function copyText(elementId, btn) {
+            const el = document.getElementById(elementId);
+            if (!el) return;
+            const text = el.innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                const orig = btn.innerText;
+                btn.innerText = '✅';
+                setTimeout(() => { btn.innerText = orig; }, 1500);
+            });
+        }
+    </script>
+</body>
+</html>
